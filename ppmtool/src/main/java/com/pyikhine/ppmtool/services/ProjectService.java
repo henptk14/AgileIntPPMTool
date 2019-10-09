@@ -1,5 +1,7 @@
 package com.pyikhine.ppmtool.services;
 
+import com.pyikhine.ppmtool.domain.Backlog;
+import com.pyikhine.ppmtool.repository.BacklogRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -11,11 +13,23 @@ import com.pyikhine.ppmtool.repository.ProjectRepository;
 public class ProjectService {
 	@Autowired
 	private ProjectRepository projectRepository;
+
+	@Autowired
+	private BacklogRepository backlogRepository;
 	
 	public Project saveOrUpdateProject(Project project) {
 		// Logic
 		try {
 			project.setProjectIdentifier(project.getProjectIdentifier().toUpperCase());
+			if (project.getId() == null) {
+				Backlog backlog = new Backlog();
+				project.setBacklog(backlog);
+				backlog.setProject(project);
+				backlog.setProjectIdentifier(project.getProjectIdentifier().toUpperCase());
+			}
+			if(project.getId() != null) {
+				project.setBacklog(backlogRepository.findByProjectIdentifier(project.getProjectIdentifier().toUpperCase()));
+			}
 			return projectRepository.save(project);
 		} catch (Exception e) {
 			throw new ProjectIdException("Project ID '" + project.getProjectIdentifier().toUpperCase() + "' already exists");

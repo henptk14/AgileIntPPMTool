@@ -2,17 +2,12 @@ package com.pyikhine.ppmtool.domain;
 
 import java.util.Date;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.PrePersist;
-import javax.persistence.PreUpdate;
+import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
 public class Project {
@@ -36,20 +31,24 @@ public class Project {
 	private String description;
 	
 	@Column(name="start_date")
-	@JsonFormat(pattern = "yyyy-mm-dd ' ' HH:mm:ss z")
+	@JsonFormat(pattern = "yyyy-mm-dd")
 	private Date start_date;
 	
 	@Column(name="end_date")
-	@JsonFormat(pattern = "yyyy-mm-dd ' ' HH:mm:ss z")
+	@JsonFormat(pattern = "yyyy-mm-dd")
 	private Date end_date;
 	
-	@Column(name="create_at")
-	@JsonFormat(pattern = "yyyy-mm-dd ' ' HH:mm:ss z")
+	@Column(name="create_at", updatable = false)
+	@JsonFormat(pattern = "yyyy-mm-dd")
 	private Date create_At;
 	
 	@Column(name="update_at")
-	@JsonFormat(pattern = "yyyy-mm-dd ' ' HH:mm:ss z")
+	@JsonFormat(pattern = "yyyy-mm-dd")
 	private Date updated_At;
+
+	@OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL, mappedBy = "project")
+	@JsonIgnore
+	private Backlog backlog;
 	
 	@PrePersist
 	protected void onCreate() {
@@ -64,7 +63,14 @@ public class Project {
 	public Project() {
 		
 	}
-	
+
+	public Backlog getBacklog() {
+		return backlog;
+	}
+
+	public void setBacklog(Backlog backlog) {
+		this.backlog = backlog;
+	}
 
 	public Long getId() {
 		return id;
